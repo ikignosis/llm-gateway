@@ -1,0 +1,11 @@
+[package]
+name = "llm-gateway"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8.4"
+axum-server = { version = "0.7.2" }
+clap = { version = "4.5.41", features = ["derive"] }
+tokio = { version = "1.47.0", features = ["rt-multi-thread"] }
+utoipa = { version = "5.4.0", features = ["axum_extras"] }
