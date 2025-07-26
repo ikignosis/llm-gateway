@@ -1,7 +1,5 @@
 pub mod core;
-pub mod multipart;
 pub mod result;
-pub mod types;
 pub mod web_interface;
 
 use std::net::SocketAddr;

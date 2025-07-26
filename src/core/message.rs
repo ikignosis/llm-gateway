@@ -1,7 +1,9 @@
-use tokio::sync::oneshot;
-
 use super::result::GatewayResult;
-use crate::types::{CreateChatCompletionRequest, CreateChatCompletionResponse};
+
+use conversa_openai_client::{
+    client::CreateChatCompletionResponse, types::CreateChatCompletionRequest,
+};
+use tokio::sync::oneshot;
 
 pub enum GatewayMail {
     CreateChatCompletion {

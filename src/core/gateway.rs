@@ -1,16 +1,25 @@
-use crate::types::{CreateChatCompletionResponse, CreateChatCompletionResponseObject};
+use conversa_openai_client::OpenAIClient;
+
+use crate::core::result::convert_client_error;
 
 use super::{client::LlmGatewayClient, message::GatewayMail};
 
 const GATEWAY_CHANNEL_BUFFER_SIZE: usize = 32;
 
 pub struct LlmGateway;
-
-pub struct LlmGatewayBuilder;
+pub struct LlmGatewayBuilder {
+    llm_provider_list: Vec<OpenAIClient>,
+}
 
 impl LlmGatewayBuilder {
     pub fn new() -> Self {
-        Self
+        Self {
+            llm_provider_list: Vec::new(),
+        }
+    }
+
+    pub fn add_llm_provider(&mut self, provider: OpenAIClient) {
+        self.llm_provider_list.push(provider);
     }
 
     pub fn build(self) -> LlmGatewayClient {
@@ -19,20 +28,13 @@ impl LlmGatewayBuilder {
             while let Some(m) = receiver.recv().await {
                 match m {
                     GatewayMail::CreateChatCompletion {
-                        request: _,
+                        request,
                         reply_sender: response,
                     } => {
-                        let output = Ok(CreateChatCompletionResponse {
-                            id: String::from("abcd"),
-                            choices: vec![],
-                            created: 123456879,
-                            model: String::from("GPT"),
-                            service_tier: None,
-                            system_fingerprint: None,
-                            object: CreateChatCompletionResponseObject::ChatCompletion,
-                            usage: None,
-                        });
-                        response.send(output).ok();
+                        let reply = self.llm_provider_list[0]
+                            .create_chat_completion(request)
+                            .await;
+                        response.send(convert_client_error(reply)).ok();
                     }
                 }
             }

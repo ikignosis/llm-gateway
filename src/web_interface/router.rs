@@ -1,8 +1,9 @@
-use crate::{
-    core::client::LlmGatewayClient,
-    types::{CreateChatCompletionResponse, CreateChatCompletionResponseObject},
+use axum::{Json, Router, extract::State, http::StatusCode, response::Html, routing::post};
+use conversa_openai_client::{
+    client::CreateChatCompletionResponse, types::CreateChatCompletionRequest,
 };
-use axum::{Json, Router, http::StatusCode, response::Html, routing::post};
+
+use crate::core::client::LlmGatewayClient;
 
 pub fn llm_gateway_router(gateway_client: LlmGatewayClient) -> Router {
     let gateway_router = Router::new()
@@ -23,8 +24,12 @@ async fn fallback(uri: axum::http::Uri) -> (StatusCode, Html<String>) {
 }
 
 pub async fn create_chat_completion(
-    _body: String,
+    State(gateway_client): State<LlmGatewayClient>,
+    Json(body): Json<CreateChatCompletionRequest>,
 ) -> Result<Json<CreateChatCompletionResponse>, StatusCode> {
     todo!()
-    // .into())
+    // Ok(gateway_client
+    //     .create_chat_completion_request(body)
+    //     .await?
+    //     .into())
 }

@@ -1,9 +1,9 @@
+use conversa_openai_client::{
+    client::CreateChatCompletionResponse, types::CreateChatCompletionRequest,
+};
 use tokio::sync::{mpsc::Sender, oneshot};
 
-use crate::{
-    core::{message::GatewayMail, result::GatewayResult},
-    types::{CreateChatCompletionRequest, CreateChatCompletionResponse},
-};
+use crate::core::{message::GatewayMail, result::GatewayResult};
 
 #[derive(Debug, Clone)]
 pub struct LlmGatewayClient {
