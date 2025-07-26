@@ -1,10 +1,20 @@
 use std::net::SocketAddr;
 
-use axum::Router;
+use axum::{Router, http::StatusCode, response::Html};
 use clap::Parser;
 
 fn router() -> Router {
-    Router::new()
+    Router::new().fallback(fallback)
+}
+
+// Default route
+async fn fallback(uri: axum::http::Uri) -> (StatusCode, Html<String>) {
+    (
+        StatusCode::NOT_FOUND,
+        Html(format!(
+            "<h1> 404 - Not Found</h1> <p>No route for {uri}</p>"
+        )),
+    )
 }
 
 #[derive(Parser)]
