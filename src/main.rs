@@ -1,30 +1,14 @@
-pub mod chat_completions;
+pub mod core;
 pub mod multipart;
 pub mod result;
 pub mod types;
+pub mod web_interface;
 
 use std::net::SocketAddr;
 
-use axum::{Router, http::StatusCode, response::Html, routing::post};
 use clap::Parser;
 
-use crate::chat_completions::create_chat_completion;
-
-fn router() -> Router {
-    Router::new()
-        .route("/chat/completions", post(create_chat_completion))
-        .fallback(fallback)
-}
-
-// Default route
-async fn fallback(uri: axum::http::Uri) -> (StatusCode, Html<String>) {
-    (
-        StatusCode::NOT_FOUND,
-        Html(format!(
-            "<h1> 404 - Not Found</h1> <p>No route for {uri}</p>"
-        )),
-    )
-}
+use crate::{core::gateway::LlmGatewayBuilder, web_interface::router::llm_gateway_router};
 
 #[derive(Parser)]
 struct Cli {
@@ -38,9 +22,11 @@ struct Cli {
 async fn main() -> Result<(), String> {
     let cli = Cli::parse();
 
+    let gateway_client = LlmGatewayBuilder::new().build();
+    let router = llm_gateway_router(gateway_client).into_make_service();
+
     let addr = SocketAddr::from(([0, 0, 0, 0], cli.port));
 
-    let router = router().into_make_service();
     axum_server::bind(addr)
         .serve(router)
         .await
@@ -56,12 +42,14 @@ mod main_tests {
 
     #[tokio::test]
     async fn create_chat_completion_from_client_should_return_ok() {
+        let gateway_client = LlmGatewayBuilder::new().build();
         let config = TestServerConfig {
             transport: Some(Transport::HttpRandomPort),
             ..TestServerConfig::default()
         };
 
-        let server = TestServer::new_with_config(router(), config).unwrap();
+        let server =
+            TestServer::new_with_config(llm_gateway_router(gateway_client), config).unwrap();
         let mut server_url = server.server_address().unwrap().to_string();
         // Remove the trailing / from the address string
         server_url.pop().unwrap();
