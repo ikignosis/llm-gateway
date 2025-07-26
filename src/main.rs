@@ -1,10 +1,19 @@
+pub mod chat_completions;
+pub mod multipart;
+pub mod result;
+pub mod types;
+
 use std::net::SocketAddr;
 
-use axum::{Router, http::StatusCode, response::Html};
+use axum::{Router, http::StatusCode, response::Html, routing::post};
 use clap::Parser;
 
+use crate::chat_completions::create_chat_completion;
+
 fn router() -> Router {
-    Router::new().fallback(fallback)
+    Router::new()
+        .route("/chat/completions", post(create_chat_completion))
+        .fallback(fallback)
 }
 
 // Default route
