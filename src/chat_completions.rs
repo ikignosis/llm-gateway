@@ -5,7 +5,7 @@ use crate::types::{
 };
 
 pub async fn create_chat_completion(
-    _body: Json<CreateChatCompletionRequest>,
+    _body: String,
 ) -> Result<Json<CreateChatCompletionResponse>, StatusCode> {
     Ok(CreateChatCompletionResponse {
         id: String::from("abcd"),

@@ -12,3 +12,7 @@ serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.141"
 tokio = { version = "1.47.0", features = ["rt-multi-thread"] }
 utoipa = { version = "5.4.0", features = ["axum_extras"] }
+
+[dev-dependencies]
+axum-test = "17.3.0"
+conversa_openai_client = { git = "https://github.com/s2e-systems/conversa.git" }
