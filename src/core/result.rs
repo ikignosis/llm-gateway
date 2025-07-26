@@ -11,7 +11,7 @@ pub enum GatewayError {
     /// terminates without sending a response
     NoOperationReplyReceived,
     /// This error occurs when the client returns an error message after a request
-    LlmClientError(String),
+    LlmClientError(conversa_openai_client::ConversaError),
 }
 
 impl From<tokio::sync::mpsc::error::SendError<GatewayMail>> for GatewayError {
@@ -29,5 +29,5 @@ impl From<tokio::sync::oneshot::error::RecvError> for GatewayError {
 pub fn convert_client_error<T>(
     value: conversa_openai_client::ConversaResult<T>,
 ) -> GatewayResult<T> {
-    value.map_err(|e| GatewayError::LlmClientError(e.to_string()))
+    value.map_err(|e| GatewayError::LlmClientError(e))
 }
