@@ -5,6 +5,7 @@ pub mod web_interface;
 use std::net::SocketAddr;
 
 use clap::Parser;
+use conversa_openai_client::OpenAIClientBuilder;
 
 use crate::{core::gateway::LlmGatewayBuilder, web_interface::router::llm_gateway_router};
 
@@ -20,7 +21,15 @@ struct Cli {
 async fn main() -> Result<(), String> {
     let cli = Cli::parse();
 
-    let gateway_client = LlmGatewayBuilder::new().build();
+    let mut gateway_builder = LlmGatewayBuilder::new();
+    let client = OpenAIClientBuilder::new(
+        "https://api.openai.com/v1".to_string(),
+        std::env::var("OPENAI_API_KEY").unwrap(),
+    )
+    .build()
+    .map_err(|e| format!("Failed to create AI client with error {:?}", e))?;
+    gateway_builder.add_llm_provider(client);
+    let gateway_client = gateway_builder.build();
     let router = llm_gateway_router(gateway_client).into_make_service();
 
     let addr = SocketAddr::from(([0, 0, 0, 0], cli.port));

@@ -36,16 +36,16 @@ impl From<GatewayError> for WebinterfaceError {
                     }
                 }
                 conversa_openai_client::ConversaError::UnexpectedContentType(_) => todo!(),
-                conversa_openai_client::ConversaError::ErrorResponse(_) => {
+                conversa_openai_client::ConversaError::ErrorResponse(e) => {
                     WebinterfaceError {
                         status_code: StatusCode::BAD_REQUEST,
-                        data: vec![],
+                        data: serde_json::to_vec(&e).expect("Should not fail to serialize"),
                     }
                 }
-                conversa_openai_client::ConversaError::Error(_) => {
+                conversa_openai_client::ConversaError::Error(e) => {
                     WebinterfaceError {
                         status_code: StatusCode::NOT_FOUND,
-                        data: vec![]
+                        data: serde_json::to_vec(&e).expect("Should not fail to serialize"),
                     }
                 },
             },
